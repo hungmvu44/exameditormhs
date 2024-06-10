@@ -1,4 +1,4 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
+
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -6,9 +6,8 @@ from PyQt6.QtWidgets import QMainWindow,QApplication
 import sys
 from os import path
 from PyQt6.uic import loadUiType
-from PyQt6.QtSql import QSqlDatabase, QSqlQueryModel, QSqlQuery
 import sqlite3
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 FORM_CLASS,_=loadUiType(path.join(path.dirname('__file__'),"exameditor.ui"))
 
@@ -18,7 +17,7 @@ class Main(QMainWindow, FORM_CLASS):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowIcon(QIcon('logo.png'))
-        self.connect_database()
+        
         
         ####### Setup exam room table #########
         examroom = self.findChild(QTableWidget,"examroom_table")
@@ -30,7 +29,6 @@ class Main(QMainWindow, FORM_CLASS):
         ####### End Setup exam room table #########
         ####### Setup min for read write stop #########
         self.setup_hr = self.findChild(QComboBox, "setup_hr")
-        
         self.read_hr = self.findChild(QComboBox, "read_hr")
         self.write_hr = self.findChild(QComboBox, "write_hr")
         self.stop_hr = self.findChild(QComboBox, "stop_hr")
@@ -42,6 +40,11 @@ class Main(QMainWindow, FORM_CLASS):
         
         self.session_menu = self.findChild(QComboBox, "session_menu")
         self.schedule_table = self.findChild(QTableWidget, "schedule_table")
+        self.schedule_table.setFont(font)
+        self.schedule_table.setColumnWidth(0,80)
+        self.save_btn = self.findChild(QPushButton, "btn_save_schedule")
+        # self.save_btn.clicked.connect()
+        self.time_id_lineEdit = self.findChild(QLineEdit, "time_id")
         ##set up minutes from 0 to 59
         mins = []
         for min in range(0,60):
@@ -51,50 +54,76 @@ class Main(QMainWindow, FORM_CLASS):
         self.read_min.addItems([str(i) for i in mins])
         self.write_min.addItems([str(i) for i in mins])
         self.stop_min.addItems([str(i) for i in mins])
-        
+        self.connect_database()
         ###Initialise time
-        
+        self.load_examsession()
+        self.save_btn.clicked.connect(self.insert_examsession)
         
         ####### Time for set up ,read write stop #########
-       
-        
-        
-        
         
         # ####### END Time for set up ,read write stop #########
-    # def insert_schedule(self):
-    #     pass
-       
    
+    def load_examsession(self):
+        try: 
+            db = sqlite3.connect("mhsexam.db", timeout=1)
+            cursor1 = db.cursor()
+            query1 = ''' Select * from Exam_Session '''
+            result = cursor1.execute(query1)
+            self.schedule_table.setRowCount(0)
+            for row_number, row_data in enumerate(result):
+                self.schedule_table.insertRow(row_number)
+                for column_number, data in enumerate(row_data):
+                    self.schedule_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+        except sqlite3.Error as e:
+            print("Error occurred", e)
+        finally:
+            cursor1.close()
+            
+
     def insert_examsession(self):
-        setup_time = timedelta(hours=int(self.setup_hr.currentText()), minutes=int(self.setup_min.currentText()))
-         
-        read_time = timedelta(hours=int(self.read_hr.currentText()), minutes=int(self.read_min.currentText()))
-         
-        written_time = timedelta(hours=int(self.write_hr.currentText()), minutes=int(self.write_min.currentText()))
-         
-        stoppage_time = timedelta(hours=int(self.stop_hr.currentText()), minutes=int(self.stop_min.currentText()))
-         
-        total_read_to_written_time = written_time - read_time
-        duration = stoppage_time - written_time + total_read_to_written_time
-        
-        session = int(self.session_menu.currentText())
-         
         db = sqlite3.connect("mhsexam.db")
         cursor = db.cursor()
-        cursor1 = db.cursor()
+        session = self.session_menu.currentText()
+        setup_time = timedelta(hours=float(self.setup_hr.currentText()), minutes=float(self.setup_min.currentText()))
+        read_time = timedelta(hours=float(self.read_hr.currentText()), minutes=float(self.read_min.currentText()))
+        written_time = timedelta(hours=float(self.write_hr.currentText()), minutes=float(self.write_min.currentText()))
+        stoppage_time = timedelta(hours=float(self.stop_hr.currentText()), minutes=float(self.stop_min.currentText()))
+        total_read_to_written_time = written_time - read_time
+        duration = str(stoppage_time - written_time + total_read_to_written_time)
+
+        set_up_hr = self.setup_hr.currentText()
+        set_up_min = self.setup_min.currentText()
+        read_hr = self.read_hr.currentText()
+        read_min = self.read_min.currentText()
+        written_hr = self.write_hr.currentText()
+        written_min = self.write_min.currentText()
+        stop_hr = self.stop_hr.currentText()
+        stop_min = self.stop_min.currentText()
+
         
-        query = f""" INSERT INTO Exam_Session (time_id, session, setup_time, read_time, write_time, stop_time, duration)
-                    VALUES
+        setup = f"{set_up_hr}:{set_up_min}"
+        read = f"{read_hr}:{read_min}"
+        write = f"{written_hr}:{written_min}"
+        stop = f"{stop_hr}:{stop_min}"
         
-                    ({120}, {session}, {setup_time}, {read_time}, {written_time}, {stoppage_time}, {duration})"""
+        row = (session, setup, read, write, stop, duration)
+        query = """ INSERT INTO Exam_Session (session, setup_time, read_time, write_time, stop_time, duration)
+                    VALUES (?,?,?,?,?,?)"""
         
-        result = cursor.execute(query)
-        show_schedule = cursor1.execute("Select * from Exam_Session")
-         
-         
+        cursor.execute(query,row)
+        db.commit()
+        self.setup_hr.setCurrentIndex(0)
+        self.setup_min.setCurrentIndex(0)
+        self.read_hr.setCurrentIndex(0)
+        self.read_min.setCurrentIndex(0)
+        self.write_hr.setCurrentIndex(0)
+        self.write_min.setCurrentIndex(0)
+        self.stop_hr.setCurrentIndex(0)
+        self.stop_min.setCurrentIndex(0)
+        self.load_examsession()
+        cursor.close()
        
-             
+                    
     def connect_database(self):
             db = sqlite3.connect("mhsexam.db")
             cursor = db.cursor()
@@ -105,9 +134,11 @@ class Main(QMainWindow, FORM_CLASS):
             for row_number, row_data in enumerate(result):
                 self.examroom_table.insertRow(row_number)
                 for column_number, data in enumerate(row_data):
-                    self.examroom_table.setItem(row_number,column_number,QTableWidgetItem(str(data))) 
-                
-        
+                    self.examroom_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+
+
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = Main()
