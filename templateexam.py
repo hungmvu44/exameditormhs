@@ -27,9 +27,19 @@ class Main(QMainWindow, FORM_CLASS):
         examroom = self.findChild(QTableWidget,"examroom_table")
         examroom.setStyleSheet('background-color:#ECE75F')
         font = QFont("Roboto", 10)
+        
         examroom.setFont(font)
         examroom.setColumnWidth(0,50)
         examroom.setColumnWidth(1,70)
+        
+        self.subject_table = self.findChild(QTableWidget, "subject_table")
+        item = QTableWidgetItem('Subject')
+        item.setForeground(QBrush(QColor(0,255,0)))
+        self.subject_table.setStyleSheet('background-color:#FDCBC8')
+        self.subject_table.setFont(font)
+        self.subject_table.setColumnWidth(0,80)
+        self.subject_table.setColumnWidth(1,60)
+        self.subject_table.setColumnWidth(2,60)
         ####### End Setup exam room table #########
         ####### Setup min for read write stop #########
         self.setup_hr = self.findChild(QComboBox, "setup_hr")
@@ -60,6 +70,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.load_examsession()
         self.save_btn.clicked.connect(self.insert_examsession)
         self.ChangeSession.clicked.connect(self.load_examsession)
+        
         
         ####### Time for set up ,read write stop #########
         
@@ -116,12 +127,11 @@ class Main(QMainWindow, FORM_CLASS):
         row = (session, setup, read, write, stop, duration)
         
         query = """ INSERT INTO Exam_Session (session, setup_time, read_time, write_time, stop_time, duration)
-                    VALUES (?,?,?,?,?,?)"""
+                    VALUES (?,?,?,?,?,?) """
         
         cursor.execute(query,row)
         db.commit()
        
-        
         self.setup_hr.setCurrentIndex(0)
         self.setup_min.setCurrentIndex(0)
         self.read_hr.setCurrentIndex(0)
@@ -135,7 +145,6 @@ class Main(QMainWindow, FORM_CLASS):
        
                     
     def connect_database(self):
-           
             cursor = db.cursor()
             query = ''' Select * from classroom '''
             result = cursor.execute(query)
@@ -144,6 +153,24 @@ class Main(QMainWindow, FORM_CLASS):
                 self.examroom_table.insertRow(row_number)
                 for column_number, data in enumerate(row_data):
                     self.examroom_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+            
+            cur1 = db.cursor()
+            query1 = ''' SELECT 
+                            s.subject_id,
+                            s.class,
+                            t.teacher_id
+                        FROM
+                            Subjects s
+                            INNER JOIN Teachers_Subjects t ON s.subject_id = t.subject_id 
+                            ORDER BY s.subject_id DESC
+                            '''
+            result1 = cursor.execute(query1)
+            self.subject_table.setRowCount(0)
+            for row_number, row_data in enumerate(result1):
+                self.subject_table.insertRow(row_number)
+                for column_number, data in enumerate(row_data):
+                    self.subject_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+	 
 
 ## Connect to database
 db = sqlite3.connect("mhsexam.db", timeout=1)
