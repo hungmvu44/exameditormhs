@@ -8,6 +8,8 @@ from PyQt6.uic import loadUiType
 import sqlite3
 from datetime import timedelta
 from AboutDialog import AboutDialog
+
+
 FORM_CLASS,_=loadUiType(path.join(path.dirname('__file__'),"exameditor.ui"))
 
 
@@ -18,6 +20,8 @@ class Main(QMainWindow, FORM_CLASS):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowIcon(QIcon('logo.png'))
+        
+        self.context_menu = QMenu(self)
         
         about_menu = self.menuBar().addMenu("&About")
         about_action = QAction("Developer", self)
@@ -76,7 +80,6 @@ class Main(QMainWindow, FORM_CLASS):
         
         # ####### END Time for set up ,read write stop #########
     
-    
     def show_about(self):
         dlg = AboutDialog()
         dlg.exec()
@@ -84,9 +87,8 @@ class Main(QMainWindow, FORM_CLASS):
     def load_examsession(self):
         try: 
             session = self.session_menu.currentText()
-            cursor1 = db.cursor()
             query1 = f''' Select * from Exam_Session WHERE session= {session} '''
-            result = cursor1.execute(query1)
+            result = cursor.execute(query1)
             self.schedule_table.setRowCount(0)
             for row_number, row_data in enumerate(result):
                 self.schedule_table.insertRow(row_number)
@@ -145,7 +147,7 @@ class Main(QMainWindow, FORM_CLASS):
        
                     
     def connect_database(self):
-            cursor = db.cursor()
+            
             query = ''' Select * from classroom '''
             result = cursor.execute(query)
             self.examroom_table.setRowCount(0)
@@ -154,8 +156,7 @@ class Main(QMainWindow, FORM_CLASS):
                 for column_number, data in enumerate(row_data):
                     self.examroom_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
             
-            cur1 = db.cursor()
-            query1 = ''' SELECT 
+            query1 = '''SELECT 
                             s.subject_id,
                             s.class,
                             t.teacher_id
@@ -174,6 +175,7 @@ class Main(QMainWindow, FORM_CLASS):
 
 ## Connect to database
 db = sqlite3.connect("mhsexam.db", timeout=1)
+cursor = db.cursor()
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = Main()
