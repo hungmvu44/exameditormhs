@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
-from PyQt6.QtWidgets import QMainWindow,QApplication
 import sys
 from os import path
 from PyQt6.uic import loadUiType
@@ -17,7 +16,6 @@ FORM_CLASS,_=loadUiType(path.join(path.dirname('__file__'),"exameditor.ui"))
 class Main(QMainWindow, FORM_CLASS):
     def __init__(self):
         super().__init__()
-        QMainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowIcon(QIcon('logo.png'))
         
@@ -60,7 +58,8 @@ class Main(QMainWindow, FORM_CLASS):
         self.schedule_table = self.findChild(QTableWidget, "schedule_table")
         self.schedule_table.setStyleSheet('background-color: #CCEBCB')
         self.schedule_table.setFont(font)
-        self.schedule_table.setColumnWidth(0,80)
+        self.schedule_table.setColumnWidth(0,50)
+        self.schedule_table.setColumnWidth(1,50)
         self.save_btn = self.findChild(QPushButton, "btn_save_schedule")
         ##set up minutes from 0 to 59
         mins = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"]
@@ -73,7 +72,7 @@ class Main(QMainWindow, FORM_CLASS):
         ###Initialise time
         self.load_examsession()
         self.save_btn.clicked.connect(self.insert_examsession)
-        self.ChangeSession.clicked.connect(self.load_examsession)
+        self.session_menu.currentTextChanged.connect(self.load_examsession)
         
         
         ####### Time for set up ,read write stop #########
@@ -97,7 +96,8 @@ class Main(QMainWindow, FORM_CLASS):
         except sqlite3.Error as e:
             print("Error occurred", e)
         
-            
+    def remove_examsession(self):
+        selected_row = self.schedule_table.currentRow()
 
     def insert_examsession(self):
         session = self.session_menu.currentText()
@@ -176,6 +176,7 @@ class Main(QMainWindow, FORM_CLASS):
 ## Connect to database
 db = sqlite3.connect("mhsexam.db", timeout=1)
 cursor = db.cursor()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = Main()
