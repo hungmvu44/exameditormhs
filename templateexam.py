@@ -7,10 +7,10 @@ from PyQt6.uic import loadUiType
 import sqlite3
 from datetime import timedelta
 from AboutDialog import AboutDialog
+from InsertExamDialog import InsertExamDialog
 
 
 FORM_CLASS,_=loadUiType(path.join(path.dirname('__file__'),"exameditor.ui"))
-
 
 
 class Main(QMainWindow, FORM_CLASS):
@@ -61,6 +61,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.schedule_table.setColumnWidth(0,50)
         self.schedule_table.setColumnWidth(1,50)
         self.save_btn = self.findChild(QPushButton, "btn_save_schedule")
+        self.del_btn.clicked.connect(self.remove_examsession)
         ##set up minutes from 0 to 59
         mins = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"]
 
@@ -74,10 +75,16 @@ class Main(QMainWindow, FORM_CLASS):
         self.save_btn.clicked.connect(self.insert_examsession)
         self.session_menu.currentTextChanged.connect(self.load_examsession)
         
-        
         ####### Time for set up ,read write stop #########
         
         # ####### END Time for set up ,read write stop #########
+        
+        ####### User insert exam date dialog #########
+        self.addExam_btn.clicked.connect(self.add_exam_table)
+        ####### END User insert exam date dialog #########
+    def add_exam_table(self):
+        exam_dialog  = InsertExamDialog()
+        exam_dialog.exec()
     
     def show_about(self):
         dlg = AboutDialog()
@@ -98,11 +105,22 @@ class Main(QMainWindow, FORM_CLASS):
         
     def remove_examsession(self):
         selected_row = self.schedule_table.currentRow()
-
+        item = str(self.schedule_table.item(selected_row,0).text())
+        
+        if selected_row < 0:
+            Warning = QMessageBox.warning(self, 'Warning', 'Please select the record to delete')
+        else:
+            msg = QMessageBox.question(self, 'Confirmation', 'Are you sure want to delete this record', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            
+        if msg ==  QMessageBox.StandardButton.Yes:
+            qry = 'DELETE FROM Exam_Session WHERE time_id=?'
+            cursor.execute(qry,(item,))
+            db.commit()
+            self.load_examsession()
+            
+            
     def insert_examsession(self):
         session = self.session_menu.currentText()
-        cursor = db.cursor()
-        
         ##### Calculate the duration of the exam
         
         setup_time = timedelta(hours=float(self.setup_hr.currentText()), minutes=float(self.setup_min.currentText()))
@@ -143,7 +161,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.stop_hr.setCurrentIndex(0)
         self.stop_min.setCurrentIndex(0)
         self.load_examsession()
-        cursor.close()
+        
        
                     
     def connect_database(self):
