@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="photo">
+    <file>../../../../Downloads/exam-icon.png</file>
+    <file>../../../../Downloads/calendar-plus-line-icon.png</file>
+  </qresource>
+</RCC>
