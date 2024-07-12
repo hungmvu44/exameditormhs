@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>407</width>
-    <height>339</height>
+    <width>363</width>
+    <height>390</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="insert_exam">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>270</y>
+     <x>130</x>
+     <y>300</y>
      <width>71</width>
      <height>31</height>
     </rect>
@@ -29,10 +29,10 @@
   <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>40</y>
-     <width>271</width>
-     <height>201</height>
+     <x>40</x>
+     <y>20</y>
+     <width>281</width>
+     <height>271</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -94,6 +94,9 @@
        <string>Enter Time ID</string>
       </property>
      </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="comboBox_session"/>
     </item>
    </layout>
   </widget>
