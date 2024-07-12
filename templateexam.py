@@ -10,7 +10,9 @@ from AboutDialog import AboutDialog
 from InsertExamDialog import InsertExamDialog
 
 
+
 FORM_CLASS,_=loadUiType(path.join(path.dirname('__file__'),"exameditor.ui"))
+
 
 
 class Main(QMainWindow, FORM_CLASS):
@@ -18,8 +20,8 @@ class Main(QMainWindow, FORM_CLASS):
         super().__init__()
         self.setupUi(self)
         self.setWindowIcon(QIcon('logo.png'))
-        
         self.context_menu = QMenu(self)
+        
         
         about_menu = self.menuBar().addMenu("&About")
         about_action = QAction("Developer", self)
@@ -75,6 +77,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.save_btn.clicked.connect(self.insert_examsession)
         self.session_menu.currentTextChanged.connect(self.load_examsession)
         
+        
         ####### Time for set up ,read write stop #########
         
         # ####### END Time for set up ,read write stop #########
@@ -82,6 +85,9 @@ class Main(QMainWindow, FORM_CLASS):
         ####### User insert exam date dialog #########
         self.addExam_btn.clicked.connect(self.add_exam_table)
         ####### END User insert exam date dialog #########
+        self.context_menu = QMenu(self)
+        remove = self.context_menu.addAction("Remove record")
+        remove.triggered.connect(self.delete_examsession)
     def add_exam_table(self):
         exam_dialog  = InsertExamDialog()
         exam_dialog.exec()
@@ -89,7 +95,10 @@ class Main(QMainWindow, FORM_CLASS):
     def show_about(self):
         dlg = AboutDialog()
         dlg.exec()
-        
+    
+    def contextMenuEvent(self, event):
+        # Show the context menu
+        self.context_menu.exec(event.globalPos())
     def load_examsession(self):
         try: 
             session = self.session_menu.currentText()
@@ -102,22 +111,37 @@ class Main(QMainWindow, FORM_CLASS):
                     self.schedule_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
         except sqlite3.Error as e:
             print("Error occurred", e)
-        
+            
+    def delete_examsession(self):
+            
+            selected_row = self.schedule_table.currentRow()
+            if selected_row > 0: 
+                item = str(self.schedule_table.item(selected_row,0).text())
+                msg = QMessageBox.question(self, 'Confirmation', 'Are you sure want to delete this record', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                    
+                if msg ==  QMessageBox.StandardButton.Yes:
+                    
+                    qry = 'DELETE FROM Exam_Session WHERE time_id=?'
+                    cursor.execute(qry,(item,))
+                    db.commit()
+                    self.load_examsession()     
     def remove_examsession(self):
         selected_row = self.schedule_table.currentRow()
-        item = str(self.schedule_table.item(selected_row,0).text())
-        
-        if selected_row < 0:
-            Warning = QMessageBox.warning(self, 'Warning', 'Please select the record to delete')
+        item = str(self.schedule_table.item(selected_row,0))
+        if item == None:
+            if selected_row < 0:
+                
+                QMessageBox.warning(self, 'Warning', 'This will delete record')
         else:
+            item = str(self.schedule_table.item(selected_row,0).text())
             msg = QMessageBox.question(self, 'Confirmation', 'Are you sure want to delete this record', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-            
-        if msg ==  QMessageBox.StandardButton.Yes:
-            qry = 'DELETE FROM Exam_Session WHERE time_id=?'
-            cursor.execute(qry,(item,))
-            db.commit()
-            self.load_examsession()
-            
+                
+            if msg ==  QMessageBox.StandardButton.Yes: 
+                
+                qry = 'DELETE FROM Exam_Session WHERE time_id=?'
+                cursor.execute(qry,(item,))
+                db.commit()
+                self.load_examsession()      
             
     def insert_examsession(self):
         session = self.session_menu.currentText()
@@ -160,10 +184,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.write_min.setCurrentIndex(0)
         self.stop_hr.setCurrentIndex(0)
         self.stop_min.setCurrentIndex(0)
-        self.load_examsession()
-        
-       
-                    
+        self.load_examsession()                 
     def connect_database(self):
             
             query = ''' Select * from classroom '''
@@ -194,6 +215,7 @@ class Main(QMainWindow, FORM_CLASS):
 ## Connect to database
 db = sqlite3.connect("mhsexam.db", timeout=1)
 cursor = db.cursor()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
