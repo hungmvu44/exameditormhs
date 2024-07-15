@@ -8,9 +8,6 @@ import sqlite3
 from datetime import timedelta
 from AboutDialog import AboutDialog
 from InsertExamDialog import InsertExamDialog
-
-
-
 FORM_CLASS,_=loadUiType(path.join(path.dirname('__file__'),"exameditor.ui"))
 
 
@@ -63,7 +60,6 @@ class Main(QMainWindow, FORM_CLASS):
         self.schedule_table.setColumnWidth(0,50)
         self.schedule_table.setColumnWidth(1,50)
         self.save_btn = self.findChild(QPushButton, "btn_save_schedule")
-        self.del_btn.clicked.connect(self.remove_examsession)
         ##set up minutes from 0 to 59
         mins = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59"]
 
@@ -131,7 +127,7 @@ class Main(QMainWindow, FORM_CLASS):
         if item == None:
             if selected_row < 0:
                 
-                QMessageBox.warning(self, 'Warning', 'This will delete record')
+                QMessageBox.warning(self, 'Warning', 'TChoose record to delete')
         else:
             item = str(self.schedule_table.item(selected_row,0).text())
             msg = QMessageBox.question(self, 'Confirmation', 'Are you sure want to delete this record', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
