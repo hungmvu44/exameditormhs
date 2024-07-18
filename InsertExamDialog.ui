@@ -26,7 +26,7 @@
     <string>Insert</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -51,34 +51,53 @@
         <second>0</second>
         <year>2024</year>
         <month>1</month>
-        <day>1</day>
+        <day>2</day>
        </datetime>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="lineEdit_room">
+     <widget class="QComboBox" name="comboBox_day">
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>35</height>
+        <height>30</height>
        </size>
       </property>
-      <property name="placeholderText">
-       <string>Enter room</string>
-      </property>
+      <item>
+       <property name="text">
+        <string>Monday</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Tuesday</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Wednesday</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Thursday</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Friday</string>
+       </property>
+      </item>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="lineEdit_day">
+     <widget class="QComboBox" name="comboBox_room">
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>35</height>
+        <height>30</height>
        </size>
-      </property>
-      <property name="placeholderText">
-       <string>Enter Day</string>
       </property>
      </widget>
     </item>
@@ -87,7 +106,7 @@
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>35</height>
+        <height>30</height>
        </size>
       </property>
       <property name="placeholderText">
@@ -96,7 +115,39 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="comboBox_session"/>
+     <widget class="QComboBox" name="comboBox_subject">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>30</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="exam_menu">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>30</height>
+       </size>
+      </property>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3</string>
+       </property>
+      </item>
+     </widget>
     </item>
    </layout>
   </widget>
