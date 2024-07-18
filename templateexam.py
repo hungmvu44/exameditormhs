@@ -52,6 +52,13 @@ class Main(QMainWindow, FORM_CLASS):
         self.read_min = self.findChild(QComboBox, "read_min")
         self.write_min = self.findChild(QComboBox, "write_min")
         self.stop_min = self.findChild(QComboBox, "stop_min")
+        # Initialise Qdialog Item from InsertExamDialog ###
+        self.date = self.findChild(QDateEdit, "date")
+        self.day = self.findChild(QComboBox, "comboBox_day")
+        self.room = self.findChild(QComboBox, "comboBox_room")
+        self.subject = self.findChild(QComboBox, "comboBox_subject")
+        self.timeid = self.findChild(QLineEdit, "lineEdit_timeID")
+        # End Qdialog Item from InsertExamDialog ###
         
         self.session_menu = self.findChild(QComboBox, "session_menu")
         self.schedule_table = self.findChild(QTableWidget, "schedule_table")
@@ -73,17 +80,16 @@ class Main(QMainWindow, FORM_CLASS):
         self.save_btn.clicked.connect(self.insert_examsession)
         self.session_menu.currentTextChanged.connect(self.load_examsession)
         
-        
-        ####### Time for set up ,read write stop #########
-        
-        # ####### END Time for set up ,read write stop #########
-        
         ####### User insert exam date dialog #########
         self.addExam_btn.clicked.connect(self.add_exam_table)
         ####### END User insert exam date dialog #########
         self.context_menu = QMenu(self)
         remove = self.context_menu.addAction("Remove record")
         remove.triggered.connect(self.delete_examsession)
+        
+        
+        
+        
     def add_exam_table(self):
         exam_dialog  = InsertExamDialog()
         exam_dialog.exec()
@@ -180,7 +186,7 @@ class Main(QMainWindow, FORM_CLASS):
         self.write_min.setCurrentIndex(0)
         self.stop_hr.setCurrentIndex(0)
         self.stop_min.setCurrentIndex(0)
-        self.load_examsession()                 
+        self.load_examsession()                
     def connect_database(self):
             
             query = ''' Select * from classroom '''
@@ -192,7 +198,7 @@ class Main(QMainWindow, FORM_CLASS):
                     self.examroom_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
             
             query1 = '''SELECT 
-                            s.subject_id,
+                            s.subject_code,
                             s.class,
                             t.teacher_id
                         FROM
@@ -206,8 +212,48 @@ class Main(QMainWindow, FORM_CLASS):
                 self.subject_table.insertRow(row_number)
                 for column_number, data in enumerate(row_data):
                     self.subject_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
-	 
+    def add_exam(self):
+        date = self.date.date().toString("DD-MM-YYYY")
+        day = self.day.currentText()
+        room = self.room.currentText()
+        timeid = self.timeid.text()
+        subject = self.subject.currentText()
+        examgroup = self.exam_menu.currentText()
+        
+        
+        query = ''' INSERT INTO Exam (Exam_Date, Day, Room, TimeID, Subject, Groupe)
+                    VALUES (?, ?, ?, ?, ?, ?)'''
+        row = (date, day, room, timeid, subject, examgroup)
+        cursor.execute(query,row)
+        db.commit()
+        
+        self.date.setDate(QDate.currentDate())
+        self.day.setCurrentIndex(0)
+        self.room.setCurrentIndex(0)
+        self.timeid.clear()
+        self.subject.setCurrentIndex(0)
+        self.exam_menu.setCurrentIndex(0)
+        self.connect_exam()
 
+        
+    def connect_exam(self):
+            query = ''' 
+                    SELECT e.Exam_Date,es.session,e.Groupe,e.Day,e.Room,e.TimeID, s.subject_code as subject,ts.teacher_id
+                    FROM Exam e
+                    JOIN Exam_Session es
+                    ON e.TimeID = es.time_id
+                    JOIN Subjects s
+                    ON s.subject_id = e.Subject
+                    JOIN Teachers_Subjects ts
+                    ON s.subject_id = ts.subject_id
+                '''
+            result = cursor.execute(query)
+            self.exam_table.setRowCount(0)
+            for row_number, row_data in enumerate(result):
+                self.exam_table.insertRow(row_number)
+                for column_number, data in enumerate(row_data):
+                    self.exam_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+  
 ## Connect to database
 db = sqlite3.connect("mhsexam.db", timeout=1)
 cursor = db.cursor()
@@ -218,3 +264,4 @@ if __name__ == '__main__':
     window = Main()
     window.show()
     app.exec()
+    
