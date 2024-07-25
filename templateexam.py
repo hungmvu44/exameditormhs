@@ -32,6 +32,8 @@ class Main(QMainWindow, FORM_CLASS):
         examroom.setFont(font)
         examroom.setColumnWidth(0,50)
         examroom.setColumnWidth(1,70)
+        self.exam_table.setStyleSheet('background-color:#ADD8E6')
+        self.exam_table.setColumnWidth(2,80)
         
         self.subject_table = self.findChild(QTableWidget, "subject_table")
         item = QTableWidgetItem('Subject')
@@ -72,16 +74,18 @@ class Main(QMainWindow, FORM_CLASS):
         self.load_examsession()
         self.save_btn.clicked.connect(self.insert_examsession)
         self.session_menu.currentTextChanged.connect(self.load_examsession)
-        
+       
         ####### User insert exam date dialog #########
         self.addExam_btn.clicked.connect(self.add_exam_table)
         ####### END User insert exam date dialog #########
         self.context_menu = QMenu(self)
         remove = self.context_menu.addAction("Remove record")
         remove.triggered.connect(self.delete_examsession)
+        self.connect_exam()
         
     def add_exam_table(self):
         exam_dialog  = InsertExamDialog()
+        self.connect_exam()
         exam_dialog.exec()
     
     def show_about(self):
@@ -179,31 +183,51 @@ class Main(QMainWindow, FORM_CLASS):
         self.load_examsession()                
     def connect_database(self):
             
-            query = ''' Select * from classroom '''
-            result = cursor.execute(query)
-            self.examroom_table.setRowCount(0)
-            for row_number, row_data in enumerate(result):
-                self.examroom_table.insertRow(row_number)
-                for column_number, data in enumerate(row_data):
-                    self.examroom_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
-            
-            query1 = '''SELECT 
-                            s.subject_code,
-                            s.class,
-                            t.teacher_id
-                        FROM
-                            Subjects s
-                            INNER JOIN Teachers_Subjects t ON s.subject_id = t.subject_id 
-                            ORDER BY s.subject_id DESC
-                            '''
-            result1 = cursor.execute(query1)
-            self.subject_table.setRowCount(0)
-            for row_number, row_data in enumerate(result1):
-                self.subject_table.insertRow(row_number)
-                for column_number, data in enumerate(row_data):
-                    self.subject_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+        query = ''' Select * from classroom '''
+        result = cursor.execute(query)
+        self.examroom_table.setRowCount(0)
+        for row_number, row_data in enumerate(result):
+            self.examroom_table.insertRow(row_number)
+            for column_number, data in enumerate(row_data):
+                self.examroom_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+        
+        query1 = '''SELECT 
+                        s.subject_code,
+                        s.class,
+                        t.teacher_id
+                    FROM
+                        Subjects s
+                        INNER JOIN Teachers_Subjects t ON s.subject_id = t.subject_id 
+                        ORDER BY s.subject_id DESC
+                        '''
+        result1 = cursor.execute(query1)
+        self.subject_table.setRowCount(0)
+        for row_number, row_data in enumerate(result1):
+            self.subject_table.insertRow(row_number)
+            for column_number, data in enumerate(row_data):
+                self.subject_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
     
-  
+    def connect_exam(self):
+      query = ''' 
+                SELECT e.Exam_Date, e.Day, e.Room, e.Subject, e.Groupe, e.TimeID,es.session, s.class, ts.teacher_id, COUNT(ss.Student_id) as NumberofStudents 
+                FROM Exam e
+                Join Exam_Session es 
+                ON e.TimeID = es.time_id
+                JOIN Subjects s
+                ON e.Subject = s.subject_code
+                JOIN Teachers_Subjects ts
+                ON s.subject_id = ts.subject_id
+                JOIN Students_Subjects ss
+                ON ts.teacher_id = ss.teacher_code
+				GROUP BY ss.classID, ss.teacher_code 
+            '''
+      result = cursor.execute(query)
+      self.exam_table.setRowCount(0)
+      for row_number, row_data in enumerate(result):
+            self.exam_table.insertRow(row_number)
+            for column_number, data in enumerate(row_data):
+               self.exam_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))  
+      
 ## Connect to database
 db = sqlite3.connect("mhsexam.db", timeout=1)
 cursor = db.cursor()
