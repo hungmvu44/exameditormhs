@@ -34,6 +34,7 @@ class Main(QMainWindow, FORM_CLASS):
         examroom.setColumnWidth(1,70)
         self.exam_table.setStyleSheet('background-color:#ADD8E6')
         self.exam_table.setColumnWidth(2,80)
+        self.exam_table.setColumnWidth(3,80)
         
         self.subject_table = self.findChild(QTableWidget, "subject_table")
         item = QTableWidgetItem('Subject')
