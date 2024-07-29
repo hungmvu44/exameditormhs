@@ -35,6 +35,14 @@ class Main(QMainWindow, FORM_CLASS):
         self.exam_table.setStyleSheet('background-color:#ADD8E6')
         self.exam_table.setColumnWidth(2,80)
         self.exam_table.setColumnWidth(3,80)
+        self.exam_table.setColumnWidth(4,60)
+        self.exam_table.setColumnWidth(5,60)
+        self.exam_table.setColumnWidth(6,60)
+        self.exam_table.setColumnWidth(7,70)
+        self.exam_table.setColumnWidth(8,70)
+        self.exam_table.setColumnWidth(9,70)
+        self.exam_table.setColumnWidth(10,205)
+        self.exam_table.setColumnWidth(11,205)
         
         self.subject_table = self.findChild(QTableWidget, "subject_table")
         item = QTableWidgetItem('Subject')
@@ -210,7 +218,7 @@ class Main(QMainWindow, FORM_CLASS):
     
     def connect_exam(self):
       query = ''' 
-                SELECT e.Exam_Date, e.Day, e.Room, e.Subject, e.Groupe, e.TimeID,es.session, s.class, ts.teacher_id, COUNT(ss.Student_id) as NumberofStudents 
+                SELECT e.Exam_Date, e.Day, e.Room, e.Subject, e.Groupe, e.TimeID,es.session, s.class, ts.teacher_id, COUNT(ss.Student_id) as NumberofStudents, MIN(ss.Surname || " " || ss.Firstname) as FirstStudent, MAX(ss.Surname || " " || ss.Firstname) as LastStudent
                 FROM Exam e
                 Join Exam_Session es 
                 ON e.TimeID = es.time_id
@@ -220,7 +228,7 @@ class Main(QMainWindow, FORM_CLASS):
                 ON s.subject_id = ts.subject_id
                 JOIN Students_Subjects ss
                 ON ts.teacher_id = ss.teacher_code
-				GROUP BY ss.classID, ss.teacher_code 
+				GROUP BY ss.classID, ss.teacher_code
             '''
       result = cursor.execute(query)
       self.exam_table.setRowCount(0)
