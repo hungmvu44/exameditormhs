@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1886</width>
-    <height>1005</height>
+    <height>1084</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,27 +33,6 @@
     </property>
     <property name="text">
      <string>Session</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="examgroup_lbl">
-    <property name="geometry">
-     <rect>
-      <x>110</x>
-      <y>40</y>
-      <width>81</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>11</pointsize>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color: rgb(255, 35, 208);</string>
-    </property>
-    <property name="text">
-     <string>Exam Group</string>
     </property>
    </widget>
    <widget class="QLabel" name="subject_lbl">
@@ -82,13 +61,16 @@
      <rect>
       <x>20</x>
       <y>140</y>
-      <width>251</width>
+      <width>231</width>
       <height>741</height>
      </rect>
     </property>
     <property name="sizeAdjustPolicy">
      <enum>QAbstractScrollArea::AdjustToContents</enum>
     </property>
+    <attribute name="verticalHeaderVisible">
+     <bool>false</bool>
+    </attribute>
     <column>
      <property name="text">
       <string>Subject</string>
@@ -138,6 +120,9 @@
     <property name="sizeAdjustPolicy">
      <enum>QAbstractScrollArea::AdjustToContents</enum>
     </property>
+    <attribute name="verticalHeaderVisible">
+     <bool>false</bool>
+    </attribute>
     <column>
      <property name="text">
       <string>Exam Date</string>
@@ -145,27 +130,7 @@
     </column>
     <column>
      <property name="text">
-      <string>Session</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Subject</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Class</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Group</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Teacher ID</string>
+      <string>ExamDay</string>
      </property>
     </column>
     <column>
@@ -175,7 +140,37 @@
     </column>
     <column>
      <property name="text">
-      <string>ExamDay</string>
+      <string>Subject</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Group</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>TimeID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Session</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Class</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Teacher ID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Students</string>
      </property>
     </column>
     <column>
@@ -188,21 +183,11 @@
       <string>Last Student</string>
      </property>
     </column>
-    <column>
-     <property name="text">
-      <string>Students</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>TimeID</string>
-     </property>
-    </column>
    </widget>
    <widget class="QLabel" name="examrooms_lbl">
     <property name="geometry">
      <rect>
-      <x>1730</x>
+      <x>1660</x>
       <y>110</y>
       <width>91</width>
       <height>16</height>
@@ -223,8 +208,8 @@
    <widget class="QLabel" name="subject_lbl_3">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>650</y>
+      <x>860</x>
+      <y>640</y>
       <width>151</width>
       <height>16</height>
      </rect>
@@ -244,12 +229,15 @@
    <widget class="QTableWidget" name="schedule_table">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>640</x>
       <y>680</y>
-      <width>631</width>
+      <width>611</width>
       <height>192</height>
      </rect>
     </property>
+    <attribute name="verticalHeaderVisible">
+     <bool>false</bool>
+    </attribute>
     <column>
      <property name="text">
       <string>TimeID</string>
@@ -291,10 +279,13 @@
      <rect>
       <x>1660</x>
       <y>140</y>
-      <width>175</width>
+      <width>161</width>
       <height>771</height>
      </rect>
     </property>
+    <attribute name="verticalHeaderVisible">
+     <bool>false</bool>
+    </attribute>
     <column>
      <property name="text">
       <string>Room</string>
@@ -331,36 +322,11 @@
      </property>
     </item>
    </widget>
-   <widget class="QComboBox" name="exam_menu">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>70</y>
-      <width>69</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <item>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>2</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>3</string>
-     </property>
-    </item>
-   </widget>
    <widget class="QLabel" name="label_setup">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>890</y>
+      <x>660</x>
+      <y>880</y>
       <width>55</width>
       <height>28</height>
      </rect>
@@ -378,8 +344,8 @@
    <widget class="QLabel" name="label_read">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>890</y>
+      <x>800</x>
+      <y>880</y>
       <width>48</width>
       <height>28</height>
      </rect>
@@ -397,8 +363,8 @@
    <widget class="QLabel" name="label_write">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>890</y>
+      <x>940</x>
+      <y>880</y>
       <width>51</width>
       <height>28</height>
      </rect>
@@ -416,8 +382,8 @@
    <widget class="QLabel" name="label_stop">
     <property name="geometry">
      <rect>
-      <x>810</x>
-      <y>890</y>
+      <x>1080</x>
+      <y>880</y>
       <width>43</width>
       <height>28</height>
      </rect>
@@ -435,8 +401,8 @@
    <widget class="QPushButton" name="btn_save_schedule">
     <property name="geometry">
      <rect>
-      <x>970</x>
-      <y>920</y>
+      <x>1250</x>
+      <y>890</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -484,10 +450,10 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>336</x>
-      <y>930</y>
+      <x>610</x>
+      <y>910</y>
       <width>591</width>
-      <height>24</height>
+      <height>25</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -964,19 +930,6 @@
       </widget>
      </item>
     </layout>
-   </widget>
-   <widget class="QPushButton" name="del_btn">
-    <property name="geometry">
-     <rect>
-      <x>1000</x>
-      <y>770</y>
-      <width>101</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Delete Exam Time</string>
-    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
