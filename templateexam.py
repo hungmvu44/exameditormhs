@@ -88,13 +88,13 @@ class Main(QMainWindow, FORM_CLASS):
         self.addExam_btn.clicked.connect(self.add_exam_table)
         ####### END User insert exam date dialog #########
         self.context_menu = QMenu(self)
-        remove = self.context_menu.addAction("Remove record")
+        remove = self.context_menu.addAction("Remove TimeID")
         remove.triggered.connect(self.delete_examsession)
         self.connect_exam()
         
     def add_exam_table(self):
-        exam_dialog  = InsertExamDialog()
         self.connect_exam()
+        exam_dialog  = InsertExamDialog()
         exam_dialog.exec()
     
     def show_about(self):
@@ -218,17 +218,12 @@ class Main(QMainWindow, FORM_CLASS):
     
     def connect_exam(self):
       query = ''' 
-                SELECT e.Exam_Date, e.Day, e.Room, e.Subject, e.Groupe, e.TimeID,es.session, s.class, ts.teacher_id, COUNT(ss.Student_id) as NumberofStudents, MIN(ss.Surname || " " || ss.Firstname) as FirstStudent, MAX(ss.Surname || " " || ss.Firstname) as LastStudent
-                FROM Exam e
-                Join Exam_Session es 
-                ON e.TimeID = es.time_id
-                JOIN Subjects s
-                ON e.Subject = s.subject_code
-                JOIN Teachers_Subjects ts
-                ON s.subject_id = ts.subject_id
-                JOIN Students_Subjects ss
-                ON ts.teacher_id = ss.teacher_code
-				GROUP BY ss.classID, ss.teacher_code
+            SELECT  e.Exam_Date, e.Day as ExamDay, e.Room, e.Subject, e.Groupe, es.time_id, es.session, s.subject_code, s.class, ts.teacher_id 
+            FROM Exam e 
+            LEFT JOIN Exam_Session es ON es.time_id = e.TimeID
+            LEFT JOIN Subjects s ON  s.subject_id = e.Subject 
+            LEFT JOIN Teachers_Subjects ts ON ts.subject_id = s.subject_id
+        
             '''
       result = cursor.execute(query)
       self.exam_table.setRowCount(0)
