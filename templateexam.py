@@ -1,3 +1,5 @@
+
+from fpdf import FPDF
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -89,7 +91,7 @@ class Main(QMainWindow, FORM_CLASS):
         ####### END User insert exam date dialog #########
         self.context_menu = QMenu(self)
         remove = self.context_menu.addAction("Remove TimeID")
-        remove.triggered.connect(self.delete_examsession)
+        remove.triggered.connect(self.remove_examsession)
         self.connect_exam()
         
     def add_exam_table(self):
@@ -116,27 +118,14 @@ class Main(QMainWindow, FORM_CLASS):
                     self.schedule_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
         except sqlite3.Error as e:
             print("Error occurred", e)
-            
-    def delete_examsession(self):
-            
-            selected_row = self.schedule_table.currentRow()
-            if selected_row > 0: 
-                item = str(self.schedule_table.item(selected_row,0).text())
-                msg = QMessageBox.question(self, 'Confirmation', 'Are you sure want to delete this record', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-                    
-                if msg ==  QMessageBox.StandardButton.Yes:
-                    
-                    qry = 'DELETE FROM Exam_Session WHERE time_id=?'
-                    cursor.execute(qry,(item,))
-                    db.commit()
-                    self.load_examsession()     
+             
     def remove_examsession(self):
         selected_row = self.schedule_table.currentRow()
         item = str(self.schedule_table.item(selected_row,0))
         if item == None:
             if selected_row < 0:
                 
-                QMessageBox.warning(self, 'Warning', 'TChoose record to delete')
+                QMessageBox.warning(self, 'Warning', 'Choose record to delete')
         else:
             item = str(self.schedule_table.item(selected_row,0).text())
             msg = QMessageBox.question(self, 'Confirmation', 'Are you sure want to delete this record', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -218,11 +207,14 @@ class Main(QMainWindow, FORM_CLASS):
     
     def connect_exam(self):
       query = ''' 
-            SELECT  e.Exam_Date, e.Day as ExamDay, e.Room, e.Subject, e.Groupe, es.time_id, es.session, s.subject_code, s.class, ts.teacher_id 
+            SELECT  e.Exam_Date, e.Day as ExamDay, e.Room, e.Subject, e.Groupe, es.time_id, es.session, s.class, s.subject_code, ts.teacher_id, COUNT(st.student_id)
             FROM Exam e 
             LEFT JOIN Exam_Session es ON es.time_id = e.TimeID
             LEFT JOIN Subjects s ON  s.subject_id = e.Subject 
             LEFT JOIN Teachers_Subjects ts ON ts.subject_id = s.subject_id
+            LEFT JOIN Students_Subjects ss ON ss.subject_id = s.subject_id
+            LEFT JOIN Students st ON st.student_id = ss.Student_id
+            GROUP BY e.Exam_Date, e.Day, e.Room, e.Subject, e.Groupe, es.time_id, es.session, s.subject_code, s.class, ts.teacher_id
         
             '''
       result = cursor.execute(query)
