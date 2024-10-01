@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+        height: 297mm;
+        width: 210mm;
+        /* to centre page on screen*/
+        margin-left: auto;
+        margin-right: auto;
+        font: 10pt "Roboto";
+    }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Paper</title>
+</head>
+<header> 
+    <div style="display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 10px;">
+        <span><img src="logon.png" alt="" width="100" height="110"></span>
+        <div>
+            <p style="text-align: center;">MELBOURNE HIGH SCHOOL</p>
+            <p style="position: relative; right: -30px;"><b>SEPTEMBER TRIAL</b></p>
+            <h2 style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; position: relative; right: -15px;">EXAMINATIONS</h2>
+        </div>
+        <span><p>ROOM</p><p><b>{{room value}}</b></p></span>
+    </div>
+</header>
+<body>
+   <div style="display: grid; grid-template-columns: auto auto;">
+        <div style="border: 1px solid;">{{Subject}}</div>
+        <div style="border: 1px solid;">Teacher: <p>{{teacher name}}</p></div>
+   </div>
+   <div style="display: grid; grid-template-columns: 100px 103px 200px 150px 120px 121px;">
+        <div style="border: 1px solid;">Year: <p>{{year}}</p></div>
+        <div style="border: 1px solid;">Class: <p>{{class}}</p></div>
+        <div style="border: 1px solid;">Examination Duration: <p>{{duration}}</p></div>
+        <div style="border: 1px solid;">Date: <p>{{date}}</p></div>
+        <div style="border: 1px solid;">Day: <p>{{day}}</p></div>
+        <div style="border: 1px solid;">Session: <p>{{session}}</p></div>
+   </div>
+   <div style="display: grid; grid-template-columns: 130px 190px 153px 195px 126px;">
+        <div style="border: 1px solid;">No. of scripts: <p>{{number}}</p></div>
+        <div style="border: 1px solid;">Starting Supervisor's Signature </div>
+        <div style="border: 1px solid;">No of papers handed out: <p>{{number}}</p></div>
+        <div style="border: 1px solid;">Finishing Supervisor's Signature </div>
+        <div style="border: 1px solid;">No of papers collected: </div>
+   </div>
+   <p style="padding-left: 130px; margin-bottom: 1px;"><i><u>INSTRUCTION TO SUPERVISORS</u></i></p>
+   <div>
+        <div style="display: flex; justify-content: space-between;">
+            <p style="border-style: groove; margin-right: 2.5rem ;">{{start_time}}</p>
+            <p>Enter examination room. No students should be in the room at this time. Set out question papers and lined papers, Set out question papers together with graph paper if required, so that no student is sitting next to another student doing the same examination</p>
+        </div>
+        <p style="padding-left: 130px; ">Admit students. Students should place books, notes, etc. at the front of the room</p>
+        <div style="display: flex; justify-content: space-between;">
+            <p style="border-style: groove; margin-right: 2.5rem ;">{{Read_time}}</p>
+            <p style="font-weight: bold;">SAY: Examination rules require that you do not talk to any other student in the examnation room, and do nothing which would make it easier for you or another student to copy work </br>Before looking at the examination paper it is your responsibility to ensure that:</br>*   you do not have any papers or notes that are relevant to the exam in your possession or in your exam desk.</br> *   your calculator has been programmed to illegally assist you</p>
+        </div>
+        <p style="padding-left: 130px; margin-top: 5px;">When these things have been checked</p>
+        <p style="font-weight: bold; padding-left: 130px;">SAY:   You may now read the question paper. Read it carefully but DO NOT WRITE ANYTHING OR MARK THE EXAM PAPER/ANSWER SHEET IN ANYWAY</br></br></p>
+        <div style="display: flex; justify-content: space-between; margin-top: -10px;">
+            <p style="border-style: groove; margin-right: 2.5rem ;">{{Write_time}}</p>
+            <p style="font-weight: bold;">SAY:   Start writing. Place your name and form the name of your subject teacher at the head of each page before you start writing.</p>
+        </div>
+        <p style="padding-left: 130px;">Sign your name as the Starting Supervisor on the front of the examination bag</p>
+        <div style="display: flex; justify-content: space-between;">
+            <p style="border-style: groove; margin-right: 2.5rem ;">During examination</p>
+            <p>Write the start and finish time on the blackboard.</br></br>If there is no clock in the room, mark off each quarter hour on the blackboard, except for the last 15 minutes, when you should mark off each five minutes</p>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <p style="border-style: groove; margin-right: 2.5rem ;">{{Stop_time}}</p>
+            <p style="font-weight: bold;">SAY:      Stop writing please. Examination rules apply until you have been dismissed.</br>Check to make sure that you have handed in all answer sheets. Please place any unused lined paper on the front table and any waste paper in the rubbish bin as you leave the room </u></p>
+        </div>
+        <p style="padding-left: 130px; margin-bottom: -10px;"><u>Collect all scripted and booklets.</u></p>
+        <p style="padding-left: 130px; margin-bottom: -10px;">Check the number against the number of students in the room.</p>
+        <p style="padding-left: 130px; margin-bottom: -10px;">Enter the number of scripts in the space provided on the bag and place the scripts in the bag..</p>
+        <div style="display: flex; justify-content: space-between;">
+            <p style="border-style: groove; margin-right: 2.5rem ;">After collecting scripts</p>
+            <p>Fill the rest of the examination details on the bag, signing your name as the Finishing Supervisor, and take the bag to the exam ctre together with unused lined paper, graph paper, etc.<br><br><b>Note: No student may leave the examnation room before the time for the end of the examination.</b></p>
+        </div>
+       
+   </div>
+    
+</body>
+</html>
