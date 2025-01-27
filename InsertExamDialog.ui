@@ -54,6 +54,9 @@
         <day>2</day>
        </datetime>
       </property>
+      <property name="calendarPopup">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1886</width>
-    <height>1084</height>
+    <width>1874</width>
+    <height>1014</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -936,14 +936,55 @@
      </item>
     </layout>
    </widget>
+   <widget class="QScrollArea" name="scrollArea">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>1841</width>
+      <height>971</height>
+     </rect>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1839</width>
+       <height>969</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <zorder>scrollArea</zorder>
+   <zorder>session_lbl</zorder>
+   <zorder>subject_lbl</zorder>
+   <zorder>subject_table</zorder>
+   <zorder>exams_lbl</zorder>
+   <zorder>exam_table</zorder>
+   <zorder>examrooms_lbl</zorder>
+   <zorder>subject_lbl_3</zorder>
+   <zorder>schedule_table</zorder>
+   <zorder>examroom_table</zorder>
+   <zorder>session_menu</zorder>
+   <zorder>label_setup</zorder>
+   <zorder>label_read</zorder>
+   <zorder>label_write</zorder>
+   <zorder>label_stop</zorder>
+   <zorder>btn_save_schedule</zorder>
+   <zorder>addExam_btn</zorder>
+   <zorder>layoutWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1886</width>
-     <height>26</height>
+     <width>1874</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

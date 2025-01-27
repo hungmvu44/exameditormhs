@@ -14,9 +14,9 @@ class AboutDialog(QDialog):
         self.buttonBox = QDialogButtonBox(QBtn)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        font = QFont("Roboto", 15)
+        font = QFont("Roboto", 13)
         font.setBold(True)
-        copyright_label = QLabel("Copyright© by Andy VU 2024")
+        copyright_label = QLabel("Copyright© by Andy VU Melbourne High School")
         copyright_label.setFont(font)
         layout = QVBoxLayout()
         labelpic = QLabel()
@@ -27,7 +27,6 @@ class AboutDialog(QDialog):
 
         layout.addWidget(copyright_label)
         layout.addWidget(labelpic)
-
 
         layout.addWidget(self.buttonBox)
 

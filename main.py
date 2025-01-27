@@ -1,17 +1,28 @@
-
-from PyQt6.QtWidgets import *
+import os
+import sys
+import sqlite3
+import win32api
+import tempfile
+import subprocess
+from os import path
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
-import pdfkit
-import jinja2
-import sys
-from os import path
-from PyQt6.uic import loadUiType
-import sqlite3
+from docx2pdf import convert
+from PyQt6.QtWidgets import *
 from datetime import timedelta
+from PIL.ImageQt import ImageQt
+from docxtpl import DocxTemplate
+from PyQt6.QtGui import QPainter
+from PyQt6.uic import loadUiType
 from AboutDialog import AboutDialog
+from PyQt6.QtPdf import QPdfDocument
+from PyQt6.QtGui import QPainter
+from pdf2image import convert_from_path
 from InsertExamDialog import InsertExamDialog
-FORM_CLASS,_=loadUiType(path.join(path.dirname('__file__'),"exameditor.ui"))
+from PyQt6.QtPrintSupport import QPrinter, QPrintDialog
+FORM_CLASS,_ = loadUiType(path.join(path.dirname('__file__'),"exameditor - Copy.ui"))
+data = []
+EXAM_TABLE_COLUMN = 13
 
 
 class Main(QMainWindow, FORM_CLASS):
@@ -19,9 +30,17 @@ class Main(QMainWindow, FORM_CLASS):
         super().__init__()
         self.setupUi(self)
         self.showMaximized()
-        self.setWindowIcon(QIcon('logo.png'))
+        self.selected_row_data = {}
+        self.setWindowIcon(QIcon('logon.png'))
         self.context_menu = QMenu(self)
         print_menu = self.menuBar().addMenu("&Print")
+        print_action1 = QAction("Print Selected", self)
+        print_action1.triggered.connect(self.print_selected_exam)
+        print_menu.addAction(print_action1)
+        print_action2 = QAction("Print All", self)
+        print_action2.triggered.connect(self.print_exams)
+        print_menu.addAction(print_action2)
+
         about_menu = self.menuBar().addMenu("&About")
         about_action = QAction("Developer", self)
         about_action.triggered.connect(self.show_about)
@@ -34,18 +53,20 @@ class Main(QMainWindow, FORM_CLASS):
         examroom.setFont(font)
         examroom.setColumnWidth(0,50)
         examroom.setColumnWidth(1,70)
-        self.exam_table.setStyleSheet('background-color:#ADD8E6')
-        self.exam_table.setColumnWidth(2,60)
-        self.exam_table.setColumnWidth(3,60)
-        self.exam_table.setColumnWidth(4,50)
-        self.exam_table.setColumnWidth(5,60)
-        self.exam_table.setColumnWidth(6,60)
-        self.exam_table.setColumnWidth(7,60)
-        self.exam_table.setColumnWidth(8,60)
-        self.exam_table.setColumnWidth(9,60)
-        self.exam_table.setColumnWidth(10,80)
-        self.exam_table.setColumnWidth(11,205)
-        self.exam_table.setColumnWidth(12,230)
+        exam_table = self.findChild(QTableWidget,"exam_table")
+        exam_table.setStyleSheet('background-color:#ADD8E6')
+        exam_table.setColumnWidth(2,60)
+        exam_table.setColumnWidth(3,60)
+        exam_table.setColumnWidth(4,50)
+        exam_table.setColumnWidth(5,60)
+        exam_table.setColumnWidth(6,60)
+        exam_table.setColumnWidth(7,60)
+        exam_table.setColumnWidth(8,60)
+        exam_table.setColumnWidth(9,60)
+        exam_table.setColumnWidth(10,80)
+        exam_table.setColumnWidth(11,205)
+        exam_table.setColumnWidth(12,230)
+        exam_table.cellClicked.connect(self.on_cell_click)
         
         self.subject_table = self.findChild(QTableWidget, "subject_table")
         item = QTableWidgetItem('Subject')
@@ -94,7 +115,128 @@ class Main(QMainWindow, FORM_CLASS):
         remove = self.context_menu.addAction("Remove TimeID")
         remove.triggered.connect(self.remove_examsession)
         self.connect_exam()
-        
+
+    def print_pdf(self):
+        file_path = os.path.join(os.getcwd(),"temp.pdf")
+        # pdf_document = QPdfDocument(self)
+        # pdf_document.load(file_path)
+
+        # Setup printer
+        printer = QPrinter(QPrinter.PrinterMode.HighResolution)
+
+        print_dialog = QPrintDialog(printer, self)
+        if print_dialog.exec() == QPrintDialog.DialogCode.Accepted:
+            with tempfile.TemporaryDirectory() as path:
+                images = convert_from_path(file_path, dpi=300, output_folder=path, poppler_path = r"C:\Users\PMYLS\Desktop\Softwares\Installed\poppler-24.08.0\Library\bin")
+                print(len(images))
+                painter = QPainter()
+                painter.begin(printer)
+                for i, image in enumerate(images):
+                    if i > 0:
+                        break
+                        print("Adding new_page")
+                        printer.newPage()
+                    rect = painter.viewport()
+                    qtImage = ImageQt(image)
+                    qtImageScaled = qtImage.scaled(rect.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    painter.drawImage(rect, qtImageScaled)
+                painter.end()
+
+    def on_cell_click(self, row, column):
+        print(f"Clicked on cell at row {row}, column {column}")
+        exam_table = self.findChild(QTableWidget,"exam_table")
+        # Retrieve and print all the items in the selected row
+        row_data = []
+        for col in range(exam_table.columnCount()):
+            item = exam_table.item(row, col)
+            if item:
+                row_data.append(item.text())
+        self.selected_row_data = row_data
+
+
+    def get_teacher_name_by_id(self, teacher_id):
+        query = f''' Select first_name, last_name from Teachers WHERE teacher_id="{teacher_id}" '''
+        result = cursor.execute(query)
+        for row in result:
+            return f"{row[0]} {row[1]}"
+
+    def create_context(self):
+        context_list = []
+        for i, exam in enumerate(self.exam_table_data):
+            context = {
+                        "date": exam[0], "day": exam[1], "room_value": exam[2], 
+                        "Subject": exam[3], "teacher_name": self.get_teacher_name_by_id(exam[9]),
+                        "year": exam[0][-4:], "class": exam[7],
+                        "session": exam[6], "number": exam[10], 
+                    }
+            exam_session = self.get_examsession(context["session"], exam[5])
+            for session in exam_session:                
+                context |= {"duration": session[6], "start_time": session[2], "Read_time": session[3], "Write_time": session[4],
+                        "Stop_time": session[5]}
+                break
+            # return context
+            context_list.append(context)
+        return context_list
+
+    def create_context2(self, exam):
+        context = {
+                    "date": exam[0], "day": exam[1], "room_value": exam[2], 
+                    "Subject": exam[3], "teacher_name": self.get_teacher_name_by_id(exam[9]),
+                    "year": exam[0][-4:], "class": exam[7],
+                    "session": exam[6], "number": exam[10], 
+                }
+        exam_session = self.get_examsession(context["session"], exam[5])
+        for session in exam_session:                
+            context |= {"duration": session[6], "start_time": session[2], "Read_time": session[3], "Write_time": session[4],
+                    "Stop_time": session[5]}
+            break
+        return context
+
+    def command_print(self, event=None):
+        try:
+            win32api.ShellExecute(0, "print", "temp.pdf", None, ".", 0)
+        except Exception as e:
+            print(f"Error during printing: {e}")
+
+
+    def print_exams(self):
+        print("Printing Exams..")
+        contexts = self.create_context()
+        for context in contexts:
+            try:
+                doc = DocxTemplate("MELBOURNE HIGH SCHOOL.docx")
+                doc.render(context)
+                name = f"temp.docx"
+                doc.save(name)
+                convert(name)
+                # self.command_print()
+                self.print_pdf()
+            finally:
+                for file in [name, "temp.pdf"]:
+                    if os.path.exists(file):
+                        os.remove(file)
+
+
+    def print_selected_exam(self):
+        print("Printing Exams..")
+        if self.selected_row_data == {}:
+            print("No Row or Cell Selected..")
+            return
+        context = self.create_context2(self.selected_row_data)
+        try:
+            doc = DocxTemplate("MELBOURNE HIGH SCHOOL.docx")
+            doc.render(context)
+            name = f"temp.docx"
+            doc.save(name)
+            convert(name)
+            # self.command_print()
+            self.print_pdf()
+        finally:
+            for file in [name, "temp.pdf"]:
+                if os.path.exists(file):
+                    os.remove(file)
+
+
     def add_exam_table(self):
         self.connect_exam()
         exam_dialog  = InsertExamDialog()
@@ -107,11 +249,18 @@ class Main(QMainWindow, FORM_CLASS):
     def contextMenuEvent(self, event):
         # Show the context menu
         self.context_menu.exec(event.globalPos())
+
+    def get_examsession(self, session, time_id=None):
+        if time_id is None:
+            query = f''' Select * from Exam_Session WHERE session= {session} '''
+        else:
+            query = f''' Select * from Exam_Session WHERE session= {session} and time_id={time_id} '''
+        return cursor.execute(query)
+
     def load_examsession(self):
         try: 
             session = self.session_menu.currentText()
-            query1 = f''' Select * from Exam_Session WHERE session= {session} '''
-            result = cursor.execute(query1)
+            result = self.get_examsession(session)
             self.schedule_table.setRowCount(0)
             for row_number, row_data in enumerate(result):
                 self.schedule_table.insertRow(row_number)
@@ -207,6 +356,7 @@ class Main(QMainWindow, FORM_CLASS):
     
     def connect_exam(self):
       query = ''' 
+            
             SELECT  e.Exam_Date, e.Day as ExamDay, e.Room, e.Subject, e.Groupe, es.time_id, es.session, s.class, s.subject_code as subject_code, ts.teacher_id, COUNT(st.student_id), MIN(ss.Firstname || " " || ss.Surname) as FirstStudent, MAX(ss.Firstname || " " || ss.Surname) as LastStudent
             FROM Exam e 
             LEFT JOIN Exam_Session es ON es.time_id = e.TimeID
@@ -217,8 +367,9 @@ class Main(QMainWindow, FORM_CLASS):
             GROUP BY e.Exam_Date, e.Day, e.Room, e.Subject, e.Groupe, es.time_id, es.session, s.subject_code, s.class, ts.teacher_id
             '''
       result = cursor.execute(query)
+      self.exam_table_data = [row for row in result]
       self.exam_table.setRowCount(0)
-      for row_number, row_data in enumerate(result):
+      for row_number, row_data in enumerate(self.exam_table_data):
             self.exam_table.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                self.exam_table.setItem(row_number,column_number,QTableWidgetItem(str(data)))  
